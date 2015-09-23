@@ -1,6 +1,6 @@
 {
   "name": "kill-it-with-fire",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Casey Foster <c@sey.me>",
   "license": "MIT",
   "repository": {
@@ -8,6 +8,6 @@
     "url": "https://github.com/caseywebdev/kill-it-with-fire"
   },
   "scripts": {
-    "test": "node test.js && node test2.js"
+    "test": "node test.js && node test2.js && node test3.js"
   }
 }

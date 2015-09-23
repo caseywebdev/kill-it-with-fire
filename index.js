@@ -15,10 +15,19 @@ var extend = function (obj) {
   }, obj);
 };
 
+var waitingForCleanup = function () {
+  var handles = process._getActiveHandles();
+  for (var i = 0, l = handles.length; i < l; ++i) {
+    var handle = handles[i];
+    if (handle !== process.stdout && handle !== process.stderr) return true;
+  }
+  return false;
+};
+
 var waitForIt = function (options) {
   var wait = Date.now() - options.start;
   if (wait > options.wait) return options.cb(options);
-  if (!process._getActiveHandles().length) return;
+  if (!waitingForCleanup()) return;
   setImmediate(waitForIt.bind(this, options));
 };
 
