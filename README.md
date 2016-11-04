@@ -31,16 +31,10 @@ process.on('SIGTERM', function () {
 
 The time (in ms) to wait before killing it with fire.
 
-#### `cb` (default `log` the death and exit with `code`)
-
-A callback to be fired (pun intended) when it's time to get cooking. The
-callback is passed the options object for convenience. You **MUST** call
-`process.exit` in the callback, otherwise, you're doing it wrong.
-
 #### `log` (default `console.error.bind(console)`)
 
-A function to use to log the immolation. Used by the default `cb`.
+A function to use to log the immolation.
 
 #### `code` (default `1`)
 
-The code to exit the process with. Used by the default `cb`.
+The code to exit the process with.

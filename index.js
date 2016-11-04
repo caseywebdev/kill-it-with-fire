@@ -1,36 +1,34 @@
-var DEFAULTS = {
-  wait: 10000,
-  log: console.error.bind(console),
-  code: 1,
-  cb: function (options) {
-    options.log('Killed it with fire after waiting ' + options.wait + 'ms');
-    process.exit(options.code);
-  }
+const DEFAULTS = {wait: 10000, log: console.error.bind(console), code: 1};
+
+const exit = ({code, log, startedAt}) => {
+  const duration = ((Date.now() - startedAt) / 1000).toFixed(2);
+  log(`Killed it with fire after waiting ${duration}s`);
+  process.exit(code);
 };
 
-var extend = function (obj) {
-  return [].slice.call(arguments, 1).reduce(function (obj, other) {
-    Object.keys(other).forEach(function (key) { obj[key] = other[key]; });
-    return obj;
-  }, obj);
+const fail = er => {
+  console.error(er);
+  process.exit(1);
 };
 
-var waitingForCleanup = function () {
-  var handles = process._getActiveHandles();
-  for (var i = 0, l = handles.length; i < l; ++i) {
-    var handle = handles[i];
+const waitingForCleanup = () => {
+  const handles = process._getActiveHandles();
+  for (let i = 0, l = handles.length; i < l; ++i) {
+    const handle = handles[i];
     if (handle !== process.stdout && handle !== process.stderr) return true;
   }
   return false;
 };
 
-var waitForIt = function (options) {
-  var wait = Date.now() - options.start;
-  if (wait > options.wait) return options.cb(options);
-  if (!waitingForCleanup()) return;
-  setImmediate(waitForIt.bind(this, options));
-};
+const nextTick = () => new Promise(resolve => setImmediate(resolve));
 
-module.exports = function (options) {
-  waitForIt(extend({start: Date.now()}, DEFAULTS, options || {}));
-};
+const waitForIt = options =>
+  new Promise(resolve =>
+    Date.now() - options.startedAt > options.wait ? resolve(options) :
+    waitingForCleanup() ? resolve(nextTick().then(() => waitForIt(options))) :
+    null
+  );
+
+module.exports = options =>
+  waitForIt(Object.assign({startedAt: Date.now()}, DEFAULTS, options))
+    .then(exit, fail);
